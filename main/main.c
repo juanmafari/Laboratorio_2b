@@ -66,10 +66,36 @@ esp_err_t get_handler(httpd_req_t *req)
     size_t index_len = index_html_end - index_html_start;
     char indexHtml[index_len];
     memcpy(indexHtml,index_html_start,index_len);
+
+    
+
     httpd_resp_send(req, (const char *)index_html_start, index_len);
     return ESP_OK;
 }
-
+esp_err_t sty_handler(httpd_req_t *req)
+{
+    extern const uint8_t styles_css_start[] asm("_binary_styles_css_start");
+    extern const uint8_t styles_css_end[] asm("_binary_styles_css_end");
+    
+    
+    size_t styles_len = styles_css_end - styles_css_start;
+    char stylesCss[styles_len];
+    memcpy(stylesCss,styles_css_start,styles_len);
+    httpd_resp_send(req, (const char *)styles_css_start, styles_len);
+    return ESP_OK;
+}
+esp_err_t js_handler(httpd_req_t *req)
+{
+    extern const uint8_t script_js_start[] asm("_binary_script_js_start");
+    extern const uint8_t script_js_end[] asm("_binary_script_js_end");
+    
+    
+    size_t script_len = script_js_end - script_js_start;
+    char scriptJs[script_len];
+    memcpy(scriptJs,script_js_start,script_len);
+    httpd_resp_send(req, (const char *)script_js_start, script_len);
+    return ESP_OK;
+}
 esp_err_t red_handler(httpd_req_t *req)
 {
     extern const uint8_t index_html_start[] asm("_binary_index_html_start");
@@ -88,9 +114,20 @@ httpd_uri_t uri_get = {
     .method   = HTTP_GET,
     .handler  = get_handler,
 };
+httpd_uri_t sty_get = {
+    .uri      = "/styles.css",
+    .method   = HTTP_GET,
+    .handler  = sty_handler,
+};
+httpd_uri_t js_get = {
+    .uri      = "/script.js",
+    .method   = HTTP_GET,
+    .handler  = js_handler,
+};
+
 
 httpd_uri_t uri_red = {
-    .uri      = "/",
+    .uri      = "/red",
     .method   = HTTP_GET,
     .handler  = red_handler,
 };
@@ -103,6 +140,8 @@ httpd_handle_t start_web_server() {
     config.server_port = 80;
     esp_err_t ret = httpd_start(&server, &config);
     httpd_register_uri_handler(server, &uri_get);
+    httpd_register_uri_handler(server, &sty_get);
+    httpd_register_uri_handler(server, &js_get);
     
     return server;
 }

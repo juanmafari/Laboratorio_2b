@@ -1,3 +1,0 @@
-
-
-COMPONENT_EMBED_TXTFILES := index.html
