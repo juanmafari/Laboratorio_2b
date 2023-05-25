@@ -70,12 +70,30 @@ esp_err_t get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t red_handler(httpd_req_t *req)
+{
+    extern const uint8_t index_html_start[] asm("_binary_index_html_start");
+    extern const uint8_t index_html_end[] asm("_binary_index_html_end");
+    
+    size_t index_len = index_html_end - index_html_start;
+    char indexHtml[index_len];
+    memcpy(indexHtml,index_html_start,index_len);
+    httpd_resp_send(req, (const char *)index_html_start, index_len);
+    return ESP_OK;
+}
+
+
 httpd_uri_t uri_get = {
     .uri      = "/",
     .method   = HTTP_GET,
     .handler  = get_handler,
 };
 
+httpd_uri_t uri_red = {
+    .uri      = "/",
+    .method   = HTTP_GET,
+    .handler  = red_handler,
+};
 /* URI handler structure for POST /uri */
 
 
